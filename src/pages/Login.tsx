@@ -2,104 +2,129 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
-import { LogIn, User } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { LogIn, Mail, Lock } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-export default function Login() {
+const Login = () => {
   const { t } = useLanguage();
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
-      await signIn(formData.email, formData.password);
-      toast({
-        title: t('Guul!', 'Success!'),
-        description: t('Si guul leh ayaad u soo gashay', 'You have successfully logged in')
-      });
-      navigate('/');
+      const { error } = await signIn(email, password);
+      if (error) {
+        toast({
+          title: t('Qalad', 'Error'),
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: t('Guul!', 'Success!'),
+          description: t('Si guul leh ayaad u soo gashay', 'You have successfully logged in'),
+        });
+        navigate('/');
+      }
     } catch (error) {
       toast({
-        title: t('Khalad!', 'Error!'),
-        description: t('Khalad ayaa dhacay', 'An error occurred'),
-        variant: 'destructive'
+        title: t('Qalad', 'Error'),
+        description: t('Qalad ayaa dhacay', 'An error occurred'),
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center px-4">
       <LanguageToggle />
       
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center flex items-center justify-center gap-2">
-            <User className="h-6 w-6" />
-            {t('Soo Gal', 'Login')}
-          </CardTitle>
-          <CardDescription className="text-center">
-            {t('Soo gal akoonkaaga si aad u isticmaasho suuqa', 'Login to your account to use the marketplace')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('Email', 'Email')}</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                placeholder={t('Gali email-kaaga', 'Enter your email')}
-                required
-              />
+      <Card className="w-full max-w-md mx-auto bg-white rounded-lg shadow-lg">
+        <CardContent className="p-8">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <LogIn className="h-8 w-8 text-blue-600" />
+              <h1 className="text-2xl font-bold text-gray-900">
+                {t('Soo Gal', 'Login')}
+              </h1>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">{t('Sirta', 'Password')}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleChange('password', e.target.value)}
-                placeholder={t('Gari sirtaada', 'Enter your password')}
-                required
-              />
+            <p className="text-gray-600">
+              {t('Ku soo biir suuqa ugu weyn ee Soomaalida', 'Join the biggest Somali marketplace')}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t('Gali email-kaaga', 'Enter your email')}
+                  className="pl-10 py-3"
+                  required
+                />
+              </div>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              <LogIn className="h-4 w-4 mr-2" />
-              {loading ? t('Ka sugga...', 'Loading...') : t('Soo Gal', 'Login')}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('Sirta', 'Password')}
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t('Gali sirta', 'Enter your password')}
+                  className="pl-10 py-3"
+                  required
+                />
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium"
+            >
+              {loading ? t('Ku jira...', 'Loading...') : t('Soo Gal', 'Login')}
             </Button>
           </form>
-          
-          <div className="mt-4 text-center text-sm">
-            <span className="text-muted-foreground">
-              {t('Akoon ma lihid?', "Don't have an account?")}
-            </span>{' '}
-            <Link to="/register" className="text-primary hover:underline">
-              {t('Isciibaani', 'Sign up')}
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              {t('Ma lihid akoon?', "Don't have an account?")}
+            </p>
+            <Link 
+              to="/register" 
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              {t('Abuur Akoon', 'Create Account')}
             </Link>
           </div>
         </CardContent>
       </Card>
     </div>
   );
-}
+};
+
+export default Login;

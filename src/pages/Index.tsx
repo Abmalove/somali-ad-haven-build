@@ -2,12 +2,40 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { ShoppingCart } from 'lucide-react';
 
 const Index = () => {
   const { t } = useLanguage();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+        <div className="text-white text-xl">{t('Ku sugga...', 'Loading...')}</div>
+      </div>
+    );
+  }
+
+  // If user is authenticated, show the marketplace
+  if (user) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <LanguageToggle />
+        {/* This will be the authenticated marketplace view */}
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-2xl font-bold mb-4">
+            {t('Ahlan wa sahlan', 'Welcome')} {user.email}!
+          </h1>
+          <p>{t('Halkan waa suuqa Soomaalida', 'This is the Somali marketplace')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is not authenticated, show login screen
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center px-4">
