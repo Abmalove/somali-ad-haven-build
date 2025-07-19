@@ -11,9 +11,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PostAd from "./pages/PostAd";
 import Profile from "./pages/Profile";
-import EditProfile from "./pages/EditProfile";
+import EditProfile from "./pages/Editprofile";
 import AdminPanel from "./pages/AdminPanel";
-import Settings from "./pages/Settings";
+import SettingsPage from "./pages/Settings";
 import Search from "./pages/Search";
 import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
@@ -39,7 +39,7 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/admin" element={<AdminPanel />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/search" element={<Search />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/ad/:id" element={<AdDetail />} />
