@@ -199,6 +199,7 @@ export const Search = () => {
                   className={`cursor-pointer transition-transform hover:scale-105 ${
                     ad.is_highlighted ? 'ring-2 ring-accent' : ''
                   }`}
+                  onClick={() => window.location.href = `/ad/${ad.id}`}
                 >
                   <div className="aspect-video relative overflow-hidden rounded-t-lg">
                     {ad.image_urls && ad.image_urls.length > 0 ? (

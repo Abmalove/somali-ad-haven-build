@@ -353,9 +353,7 @@ export const AdDetail = () => {
 
   const canEditAd = () => {
     if (!user || user.id !== ad?.user_id) return false;
-    const createdAt = new Date(ad.created_at);
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    return createdAt >= oneHourAgo;
+    return true; // Allow editing anytime
   };
 
   const getCategoryName = (categoryId: string) => {
