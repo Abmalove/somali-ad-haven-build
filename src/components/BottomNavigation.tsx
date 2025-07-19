@@ -23,7 +23,7 @@ export const BottomNavigation = () => {
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;
-
+          
           return (
             <Button
               key={item.path}

@@ -11,11 +11,11 @@ export const HeroSection = () => {
   return (
     <div className="relative bg-gradient-primary text-primary-foreground overflow-hidden">
       {/* Background Image */}
-      <div
+      <div 
         className="absolute inset-0 bg-cover bg-center opacity-20"
         style={{ backgroundImage: `url(${heroImage})` }}
       />
-
+      
       {/* Content */}
       <div className="relative container mx-auto px-4 py-16">
         <div className="max-w-2xl">
@@ -26,13 +26,13 @@ export const HeroSection = () => {
             {t('Suuqa ugu weyn ee Soomaalida online', 'The largest Somali marketplace online')}
           </p>
           <p className="text-lg text-primary-foreground/80 mb-8">
-            {t('Iib, iibso, oo hel wax walba oo aad u baahan tahay - baabuurta, telefoonada, shaqooyinka, iyo wax kale',
+            {t('Iib, iibso, oo hel wax walba oo aad u baahan tahay - baabuurta, telefoonada, shaqooyinka, iyo wax kale', 
                'Sell, buy, and find everything you need - cars, phones, jobs, and more')}
           </p>
-
+          
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button
-              size="lg"
+            <Button 
+              size="lg" 
               variant="secondary"
               onClick={() => navigate('/post')}
               className="text-lg px-8 py-3"
@@ -40,41 +40,39 @@ export const HeroSection = () => {
               <Plus className="h-5 w-5 mr-2" />
               {t('Dhig Xayeysiis', 'Post Ad')}
             </Button>
-            <Button
-              size="lg"
+            <Button 
+              size="lg" 
               variant="outline"
               onClick={() => navigate('/search')}
               className="text-lg px-8 py-3 bg-white/10 border-white/20 text-white hover:bg-white/20"
             >
               <Search className="h-5 w-5 mr-2" />
-              {t('Raadi', 'Search')}
+              {t('Raadi', 'Browse Ads')}
             </Button>
           </div>
-        </div>
-
-        {/* Stats */}
-        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="text-center">
-            <div className="text-3xl font-bold">1000+</div>
-            <div className="text-primary-foreground/80">{t('Xayeysiis', 'Ads')}</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold">500+</div>
-            <div className="text-primary-foreground/80">{t('Isticmaale', 'Users')}</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold">50+</div>
-            <div className="text-primary-foreground/80">{t('Magaalooyin', 'Cities')}</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold flex items-center justify-center">
-              <TrendingUp className="h-6 w-6 mr-1" />
-              24/7
+          
+          {/* Stats */}
+          <div className="flex gap-8 mt-8 pt-8 border-t border-white/20">
+            <div className="text-center">
+              <div className="text-2xl font-bold">1000+</div>
+              <div className="text-sm text-primary-foreground/80">{t('Xayeysiisyo', 'Active Ads')}</div>
             </div>
-            <div className="text-primary-foreground/80">{t('Furan', 'Online')}</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">500+</div>
+              <div className="text-sm text-primary-foreground/80">{t('Isticmaalayaal', 'Users')}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">10+</div>
+              <div className="text-sm text-primary-foreground/80">{t('Goboollo', 'Regions')}</div>
+            </div>
           </div>
         </div>
       </div>
+      
+      {/* Decorative Elements */}
+      <div className="absolute top-10 right-10 text-6xl opacity-20">🏪</div>
+      <div className="absolute bottom-10 right-20 text-4xl opacity-20">📱</div>
+      <div className="absolute top-1/2 right-5 text-5xl opacity-20">🚗</div>
     </div>
   );
 };
