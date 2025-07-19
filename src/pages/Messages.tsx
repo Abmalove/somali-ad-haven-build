@@ -221,16 +221,16 @@ export const Messages = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
           {/* Conversations List */}
-          <Card className="md:col-span-1">
-            <CardHeader>
-              <CardTitle>{t('Wadahadallada', 'Conversations')}</CardTitle>
+          <Card className="md:col-span-1 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5">
+              <CardTitle className="text-lg font-semibold">{t('Wadahadallada', 'Conversations')}</CardTitle>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder={t('Raadi wadahadal...', 'Search conversations...')}
-                  className="pl-10"
+                  className="pl-10 border-border/50"
                 />
               </div>
             </CardHeader>
@@ -248,60 +248,77 @@ export const Messages = () => {
                   {t('Wadahadal ma jiro', 'No conversations yet')}
                 </div>
               ) : (
-                <div className="space-y-1">
-                  {filteredConversations.map((conversation) => (
-                    <div
-                      key={`${conversation.ad_id}-${conversation.other_user_id}`}
-                      className={`p-4 hover:bg-muted/50 cursor-pointer border-b ${
-                        selectedConversation?.ad_id === conversation.ad_id &&
-                        selectedConversation?.other_user_id === conversation.other_user_id
-                          ? 'bg-muted'
-                          : ''
-                      }`}
-                      onClick={() => selectConversation(conversation)}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-medium line-clamp-1">{conversation.other_user_name}</h3>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(conversation.last_message_time).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-1 mb-1">
-                        {conversation.ad_title}
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {conversation.last_message}
+                  <div className="space-y-2">
+                    {filteredConversations.map((conversation) => (
+                      <div
+                        key={`${conversation.ad_id}-${conversation.other_user_id}`}
+                        className={`p-4 hover:bg-primary/5 cursor-pointer border rounded-lg transition-all duration-200 ${
+                          selectedConversation?.ad_id === conversation.ad_id &&
+                          selectedConversation?.other_user_id === conversation.other_user_id
+                            ? 'bg-primary/10 border-primary/20 shadow-sm'
+                            : 'border-border/30'
+                        }`}
+                        onClick={() => selectConversation(conversation)}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold line-clamp-1 text-foreground">{conversation.other_user_name}</h3>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(conversation.last_message_time).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-1 mb-2 font-medium">
+                          {conversation.ad_title}
                         </p>
-                        <Badge variant="secondary" className="text-xs">
-                          {conversation.ad_currency} {conversation.ad_price.toLocaleString()}
-                        </Badge>
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs text-muted-foreground line-clamp-1 flex-1 mr-2">
+                            {conversation.last_message}
+                          </p>
+                          <Badge variant="outline" className="text-xs bg-primary/5 border-primary/20">
+                            {conversation.ad_currency} {conversation.ad_price.toLocaleString()}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               )}
             </CardContent>
           </Card>
 
           {/* Messages View */}
-          <Card className="md:col-span-2">
+          <Card className="md:col-span-2 shadow-lg">
             {selectedConversation ? (
               <>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
+                <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">{selectedConversation.other_user_name}</p>
+                      <p className="font-semibold text-lg">{selectedConversation.other_user_name}</p>
                       <p className="text-sm text-muted-foreground">{selectedConversation.ad_title}</p>
                     </div>
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="bg-white/50">
                       {selectedConversation.ad_currency} {selectedConversation.ad_price.toLocaleString()}
                     </Badge>
-                  </CardTitle>
+                  </div>
                 </CardHeader>
-                <CardContent className="flex flex-col h-full">
+                
+                {/* Send Message Input (moved to top) */}
+                <div className="p-4 border-b bg-background">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder={t('Qor farriimaadkaaga...', 'Type your message...')}
+                      onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                      className="flex-1"
+                    />
+                    <Button onClick={sendMessage} disabled={!newMessage.trim()} className="px-6">
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <CardContent className="flex flex-col h-full p-0">
                   {/* Messages */}
-                  <div className="flex-1 overflow-y-auto space-y-4 mb-4 max-h-96">
+                  <div className="flex-1 overflow-y-auto space-y-3 p-4 max-h-96 bg-muted/20">
                     {messages.map((message) => (
                       <div
                         key={message.id}
@@ -310,13 +327,13 @@ export const Messages = () => {
                         }`}
                       >
                         <div
-                          className={`max-w-xs p-3 rounded-lg ${
+                          className={`max-w-xs p-3 rounded-2xl shadow-sm ${
                             message.sender_id === user?.id
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
+                              ? 'bg-primary text-primary-foreground rounded-br-md'
+                              : 'bg-white border border-border/20 rounded-bl-md'
                           }`}
                         >
-                          <p className="text-sm">{message.message}</p>
+                          <p className="text-sm leading-relaxed">{message.message}</p>
                           <p className="text-xs opacity-70 mt-1">
                             {new Date(message.created_at).toLocaleTimeString([], {
                               hour: '2-digit',
@@ -326,19 +343,6 @@ export const Messages = () => {
                         </div>
                       </div>
                     ))}
-                  </div>
-
-                  {/* Send Message */}
-                  <div className="flex gap-2">
-                    <Input
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder={t('Qor farriimaadkaaga...', 'Type your message...')}
-                      onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                    />
-                    <Button onClick={sendMessage} disabled={!newMessage.trim()}>
-                      <Send className="h-4 w-4" />
-                    </Button>
                   </div>
                 </CardContent>
               </>

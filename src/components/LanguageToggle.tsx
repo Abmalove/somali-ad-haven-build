@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Moon, Sun } from 'lucide-react';
+import { NotificationSystem } from './NotificationSystem';
 
 export const LanguageToggle = () => {
   const { language, setLanguage } = useLanguage();
@@ -9,6 +10,7 @@ export const LanguageToggle = () => {
 
   return (
     <div className="fixed top-4 right-4 z-50 flex gap-2">
+      <NotificationSystem />
       <Button
         variant="outline"
         size="sm"

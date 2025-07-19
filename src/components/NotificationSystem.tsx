@@ -151,10 +151,10 @@ export const NotificationSystem = () => {
     <div className="relative">
       {/* Notification Bell */}
       <Button
-        variant="ghost"
+        variant="outline"
         size="sm"
         onClick={() => setShowNotifications(!showNotifications)}
-        className="relative"
+        className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-border"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (

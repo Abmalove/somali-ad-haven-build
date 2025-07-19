@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, CheckCircle, XCircle, Eye, Settings, Users, Search, Store, ImageIcon, Phone, Calendar, MapPin } from 'lucide-react';
+import { Shield, CheckCircle, XCircle, Eye, Settings, Users, Search, Store, ImageIcon, Phone, Calendar, MapPin, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const AdminPanel = () => {
@@ -303,6 +303,42 @@ export const AdminPanel = () => {
     }
   };
 
+  const handleDeleteAd = async (adId: string) => {
+    if (!confirm(t('Ma hubtaa inaad tirtirto xayeysiiskan?', 'Are you sure you want to delete this ad?'))) {
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('ads')
+        .delete()
+        .eq('id', adId);
+
+      if (error) throw error;
+
+      toast({
+        title: t('Guuleysatay!', 'Success!'),
+        description: t('Xayeysiiska waa la tirtiray', 'Ad has been deleted')
+      });
+
+      // Refresh all data
+      await Promise.all([
+        fetchPendingAds(),
+        fetchAllUsers()
+      ]);
+    } catch (error) {
+      console.error('Error deleting ad:', error);
+      toast({
+        title: t('Khalad', 'Error'),
+        description: t('Khalad ayaa dhacay', 'Failed to delete ad'),
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePaymentAction = async (paymentId: string, status: string) => {
     setLoading(true);
     try {
@@ -524,7 +560,7 @@ export const AdminPanel = () => {
                               )}
                             </div>
 
-                            <div className="flex gap-3 pt-4 border-t">
+                            <div className="flex gap-2 pt-4 border-t">
                               <Button 
                                 size="sm" 
                                 onClick={() => handleAdApproval(ad.id, 'approved')}
@@ -543,6 +579,15 @@ export const AdminPanel = () => {
                               >
                                 <XCircle className="h-4 w-4 mr-2" />
                                 {t('Diid', 'Reject')}
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleDeleteAd(ad.id)}
+                                disabled={loading}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                {t('Tirtir', 'Delete')}
                               </Button>
                             </div>
                           </CardContent>

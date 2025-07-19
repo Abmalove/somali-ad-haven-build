@@ -78,13 +78,29 @@ const Index = () => {
         .select('*')
         .eq('status', 'approved')
         .eq('is_hidden', false)
-        .order('is_highlighted', { ascending: false })
-        .order('is_boosted', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(100);
 
       if (error) throw error;
-      setAds(data || []);
+      
+      // Sort ads with custom logic: highlighted & boosted first, then boosted only, then regular
+      const sortedAds = (data || []).sort((a, b) => {
+        // Both highlighted and boosted come first
+        if (a.is_highlighted && a.is_boosted && !(b.is_highlighted && b.is_boosted)) return -1;
+        if (!(a.is_highlighted && a.is_boosted) && b.is_highlighted && b.is_boosted) return 1;
+        
+        // Then highlighted only
+        if (a.is_highlighted && !b.is_highlighted && !b.is_boosted) return -1;
+        if (!a.is_highlighted && b.is_highlighted && !a.is_boosted) return 1;
+        
+        // Then boosted only
+        if (a.is_boosted && !b.is_boosted && !b.is_highlighted) return -1;
+        if (!a.is_boosted && b.is_boosted && !a.is_highlighted) return 1;
+        
+        // Finally by creation date (newest first)
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      setAds(sortedAds.slice(0, 20));
     } catch (error) {
       console.error('Error fetching ads:', error);
     } finally {
