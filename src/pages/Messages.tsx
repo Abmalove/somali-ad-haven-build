@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, MessageCircle, Search, Send } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Search, Send, Store, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Footer } from '@/components/ui/footer';
 
@@ -104,10 +104,10 @@ export const Messages = () => {
       // Group messages by ad_id and other user
       const conversationMap = new Map<string, Conversation>();
       
-      // First, get all profiles for shop names
+      // First, get all profiles for shop names and usernames
       const { data: profilesData } = await supabase
         .from('profiles')
-        .select('user_id, shop_name, email');
+        .select('user_id, shop_name, username, email');
 
       const profilesMap = new Map();
       profilesData?.forEach(profile => {
@@ -117,7 +117,7 @@ export const Messages = () => {
       data?.forEach((msg: any) => {
         const otherUserId = msg.sender_id === user?.id ? msg.receiver_id : msg.sender_id;
         const otherProfile = profilesMap.get(otherUserId);
-        const otherUserName = otherProfile?.shop_name || otherProfile?.email?.split('@')[0] || `User ${otherUserId.substring(0, 8)}`;
+        const otherUserName = otherProfile?.shop_name || otherProfile?.username || otherProfile?.email?.split('@')[0] || `User ${otherUserId.substring(0, 8)}`;
         
         const key = `${msg.ad_id}-${otherUserId}`;
         
@@ -288,61 +288,83 @@ export const Messages = () => {
           <Card className="md:col-span-2 shadow-lg">
             {selectedConversation ? (
               <>
-                <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-lg">{selectedConversation.other_user_name}</p>
-                      <p className="text-sm text-muted-foreground">{selectedConversation.ad_title}</p>
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-b border-blue-200/50 dark:border-blue-700/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                      <Store className="h-6 w-6 text-white" />
                     </div>
-                    <Badge variant="outline" className="bg-white/50">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-foreground">{selectedConversation.other_user_name}</h3>
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{selectedConversation.ad_title}</p>
+                    </div>
+                    <Badge variant="outline" className="bg-white/80 dark:bg-gray-900/80 border-blue-200 dark:border-blue-700">
                       {selectedConversation.ad_currency} {selectedConversation.ad_price.toLocaleString()}
                     </Badge>
                   </div>
                 </CardHeader>
                 
+                {/* Send Message Input (moved to top) */}
+                <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder={t('Qor farriimaadkaaga...', 'Type your message...')}
+                      onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                      className="flex-1 bg-white/80 dark:bg-gray-900/80 border-blue-200 dark:border-blue-700 focus:border-blue-400 dark:focus:border-blue-500"
+                    />
+                    <Button 
+                      onClick={sendMessage} 
+                      disabled={!newMessage.trim()} 
+                      className="px-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
                 <CardContent className="flex flex-col h-full p-0">
                   {/* Messages */}
-                  <div className="flex-1 overflow-y-auto space-y-3 p-4 max-h-96 bg-muted/20">
-                    {messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${
-                          message.sender_id === user?.id ? 'justify-end' : 'justify-start'
-                        }`}
-                      >
+                  <div className="flex-1 overflow-y-auto space-y-3 p-4 max-h-96 bg-gradient-to-b from-blue-50/30 to-purple-50/30 dark:from-blue-950/20 dark:to-purple-950/20">
+                    {messages.length === 0 ? (
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <MessageSquare className="h-8 w-8 text-blue-500 dark:text-blue-400" />
+                        </div>
+                        <p className="text-muted-foreground">
+                          {t('Wali farriin ma jirto', 'No messages yet')}
+                        </p>
+                      </div>
+                    ) : (
+                      messages.map((message) => (
                         <div
-                          className={`max-w-xs p-3 rounded-2xl shadow-sm ${
-                            message.sender_id === user?.id
-                              ? 'bg-primary text-primary-foreground rounded-br-md'
-                              : 'bg-white border border-border/20 rounded-bl-md'
+                          key={message.id}
+                          className={`flex ${
+                            message.sender_id === user?.id ? 'justify-end' : 'justify-start'
                           }`}
                         >
-                          <p className="text-sm leading-relaxed">{message.message}</p>
-                          <p className="text-xs opacity-70 mt-1">
-                            {new Date(message.created_at).toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </p>
+                          <div
+                            className={`max-w-xs p-3 rounded-xl shadow-md ${
+                              message.sender_id === user?.id
+                                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-md'
+                                : 'bg-gradient-to-r from-gray-100 to-blue-50 dark:from-gray-800 dark:to-blue-900/30 text-foreground border border-blue-200/50 dark:border-blue-700/50 rounded-bl-md'
+                            }`}
+                          >
+                            <p className="text-sm font-medium leading-relaxed">{message.message}</p>
+                            <p className={`text-xs mt-1 ${
+                              message.sender_id === user?.id 
+                                ? 'text-blue-100' 
+                                : 'text-muted-foreground'
+                            }`}>
+                              {new Date(message.created_at).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Send Message Input (moved to bottom) */}
-                  <div className="p-4 border-t bg-background">
-                    <div className="flex gap-2">
-                      <Input
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder={t('Qor farriimaadkaaga...', 'Type your message...')}
-                        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                        className="flex-1"
-                      />
-                      <Button onClick={sendMessage} disabled={!newMessage.trim()} className="px-6">
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </div>
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </>

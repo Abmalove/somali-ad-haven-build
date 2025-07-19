@@ -150,6 +150,9 @@ export const Profile = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-lg font-semibold">{user.email}</p>
+                {profile?.username && (
+                  <p className="text-sm text-muted-foreground">@{profile.username}</p>
+                )}
                 {profile?.shop_name && (
                   <div className="flex items-center gap-2 mt-1">
                     <Store className="h-4 w-4" />

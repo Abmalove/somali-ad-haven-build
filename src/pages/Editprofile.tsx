@@ -23,6 +23,7 @@ export const EditProfile = () => {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [formData, setFormData] = useState({
+    username: '',
     has_shop: false,
     shop_name: '',
     shop_region: '',
@@ -52,6 +53,7 @@ export const EditProfile = () => {
       if (data) {
         setProfile(data);
         setFormData({
+          username: data.username || '',
           has_shop: data.has_shop || false,
           shop_name: data.shop_name || '',
           shop_region: data.shop_region || '',
@@ -85,6 +87,7 @@ export const EditProfile = () => {
 
     try {
       const updateData = {
+        username: formData.username || null,
         has_shop: formData.has_shop,
         shop_name: formData.has_shop ? formData.shop_name : null,
         shop_region: formData.has_shop ? formData.shop_region : null,
@@ -154,6 +157,22 @@ export const EditProfile = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Personal Information */}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="username">{t('Magaca isticmaalaha', 'Username')}</Label>
+                  <Input
+                    id="username"
+                    value={formData.username}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    placeholder={t('Magaca isticmaalaha', 'Your username')}
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t('Magacan ayaa loo isticmaali doonaa farriimaadaha', 'This will be used in messages')}
+                  </p>
+                </div>
+              </div>
+
               {/* Shop Information */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">

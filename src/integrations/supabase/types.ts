@@ -57,7 +57,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_admin_approvals_profiles"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       ads: {
         Row: {
@@ -347,6 +355,13 @@ export type Database = {
             referencedRelation: "ads"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_payment_approvals_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       profiles: {
@@ -364,6 +379,7 @@ export type Database = {
           trial_ends_at: string | null
           updated_at: string
           user_id: string
+          username: string | null
         }
         Insert: {
           ad_count?: number | null
@@ -379,6 +395,7 @@ export type Database = {
           trial_ends_at?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
         }
         Update: {
           ad_count?: number | null
@@ -394,6 +411,7 @@ export type Database = {
           trial_ends_at?: string | null
           updated_at?: string
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }
