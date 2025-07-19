@@ -355,7 +355,6 @@ export const Messages = () => {
       </div>
 
       <BottomNavigation />
-      <Footer />
     </div>
   );
 };

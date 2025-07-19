@@ -145,7 +145,8 @@ export const EditAd = () => {
       const { error } = await supabase
         .from('ads')
         .update(updateData)
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user?.id);
 
       if (error) throw error;
 
