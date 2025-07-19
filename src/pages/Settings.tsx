@@ -143,6 +143,14 @@ export const SettingsPage = () => {
               <p className="text-sm text-muted-foreground mt-2">
                 {t('Suuqa ugu weyn ee Soomaalida', 'The largest Somali marketplace')}
               </p>
+              <div className="mt-4 pt-4 border-t">
+                <p className="text-xs text-muted-foreground">
+                  © 2024 {t('Suuqa Soomaalida', 'Somali Marketplace')}. {t('Dhammaan xuquuqda way dhowran yihiin', 'All rights reserved')}.
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('La sameyey', 'Built with')} ❤️ {t('loogu talagalay bulshada Soomaalida', 'for the Somali community')}
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>

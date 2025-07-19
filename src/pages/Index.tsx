@@ -15,6 +15,7 @@ import { NotificationSystem } from '@/components/NotificationSystem';
 import { categories } from '@/data/categories';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Plus, TrendingUp, MapPin, Phone, Star, Eye } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Ad {
   id: string;
@@ -38,6 +39,7 @@ const Index = () => {
   const { t } = useLanguage();
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const [ads, setAds] = useState<Ad[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,6 +77,7 @@ const Index = () => {
         .from('ads')
         .select('*')
         .eq('status', 'approved')
+        .eq('is_hidden', false)
         .order('is_highlighted', { ascending: false })
         .order('is_boosted', { ascending: false })
         .order('created_at', { ascending: false })
@@ -168,6 +171,18 @@ const Index = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={t('Raadi alaab, baabuur, shaqo...', 'Search for items, cars, jobs...')}
               className="pl-10 bg-background"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  // Search functionality is already handled by filteredAds
+                  const results = filteredAds.length;
+                  if (results === 0) {
+                    toast({
+                      title: t('Wax la helo ma jiro', 'No results found'),
+                      description: t('Isku day eray kale', 'Try a different search term')
+                    });
+                  }
+                }
+              }}
             />
           </div>
         </div>

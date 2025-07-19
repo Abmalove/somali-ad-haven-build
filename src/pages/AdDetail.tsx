@@ -45,12 +45,28 @@ export const AdDetail = () => {
 
   const fetchAd = async () => {
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('ads')
         .select('*')
         .eq('id', id)
         .eq('status', 'approved')
         .single();
+
+      // If no ad found, check if it's hidden and user is the owner
+      if (error && user) {
+        const { data: hiddenAd, error: hiddenError } = await supabase
+          .from('ads')
+          .select('*')
+          .eq('id', id)
+          .eq('user_id', user.id)
+          .eq('status', 'approved')
+          .single();
+        
+        if (!hiddenError && hiddenAd) {
+          data = hiddenAd;
+          error = null;
+        }
+      }
 
       if (error) throw error;
       setAd(data);
@@ -67,29 +83,32 @@ export const AdDetail = () => {
       const { data, error } = await supabase
         .from('comments')
         .select(`
-          *,
-          profiles!inner(shop_name, email)
+          *
         `)
         .eq('ad_id', id)
         .order('created_at', { ascending: false });
+      
+      // Get user details separately for comments
+      if (data && data.length > 0) {
+        const userIds = data.map(comment => comment.user_id);
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, shop_name, email')
+          .in('user_id', userIds);
+        
+        // Combine comments with profiles
+        const commentsWithProfiles = data.map(comment => ({
+          ...comment,
+          profiles: profiles?.find(p => p.user_id === comment.user_id) || null
+        }));
+        setComments(commentsWithProfiles);
+      } else {
+        setComments(data || []);
+      }
 
-      if (error) throw error;
-      setComments(data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
-      // Fallback: fetch comments without profile data
-      try {
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('comments')
-          .select('*')
-          .eq('ad_id', id)
-          .order('created_at', { ascending: false });
-        
-        if (fallbackError) throw fallbackError;
-        setComments(fallbackData || []);
-      } catch (fallbackError) {
-        console.error('Fallback comment fetch failed:', fallbackError);
-      }
+      setComments([]);
     }
   };
 
@@ -283,29 +302,60 @@ export const AdDetail = () => {
     }
   };
 
-  const deleteAd = async () => {
+  const hideAd = async () => {
     try {
       const { error } = await supabase
         .from('ads')
-        .delete()
+        .update({ is_hidden: true })
         .eq('id', id);
 
       if (error) throw error;
       
       toast({
         title: t('Guuleysatay!', 'Success!'),
-        description: t('Xayeysiiska waa la tirtiray', 'Ad deleted successfully')
+        description: t('Xayeysiiska waa la qariyey', 'Ad hidden successfully')
       });
       
       navigate('/');
     } catch (error) {
-      console.error('Error deleting ad:', error);
+      console.error('Error hiding ad:', error);
       toast({
         title: t('Khalad', 'Error'),
-        description: t('Khalad ayaa dhacay', 'Failed to delete ad'),
+        description: t('Khalad ayaa dhacay', 'Failed to hide ad'),
         variant: 'destructive'
       });
     }
+  };
+
+  const unhideAd = async () => {
+    try {
+      const { error } = await supabase
+        .from('ads')
+        .update({ is_hidden: false })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      setAd({ ...ad, is_hidden: false });
+      toast({
+        title: t('Guuleysatay!', 'Success!'),
+        description: t('Xayeysiiska waa la soo bandhigay', 'Ad is now visible')
+      });
+    } catch (error) {
+      console.error('Error showing ad:', error);
+      toast({
+        title: t('Khalad', 'Error'),
+        description: t('Khalad ayaa dhacay', 'Failed to show ad'),
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const canEditAd = () => {
+    if (!user || user.id !== ad?.user_id) return false;
+    const createdAt = new Date(ad.created_at);
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    return createdAt >= oneHourAgo;
   };
 
   const getCategoryName = (categoryId: string) => {
@@ -617,17 +667,36 @@ export const AdDetail = () => {
                   >
                     {t('Calaamadee Alaabta Dib u Yimaad', 'Mark as Restocked')}
                   </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm"
-                    onClick={async () => {
-                      if (confirm(t('Ma hubtaa inaad tirtirto xayeysiiskan?', 'Are you sure you want to delete this ad?'))) {
-                        await deleteAd();
-                      }
-                    }}
-                  >
-                    {t('Tirtir Xayeysiiska', 'Delete Ad')}
-                  </Button>
+                  {canEditAd() && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => navigate(`/edit-ad/${id}`)}
+                    >
+                      {t('Wax Ka Beddel', 'Edit Ad')}
+                    </Button>
+                  )}
+                  {ad.is_hidden ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={unhideAd}
+                    >
+                      {t('Soo Bandhig', 'Show Ad')}
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={async () => {
+                        if (confirm(t('Ma hubtaa inaad qarinayso xayeysiiskan?', 'Are you sure you want to hide this ad?'))) {
+                          await hideAd();
+                        }
+                      }}
+                    >
+                      {t('Qari Xayeysiiska', 'Hide Ad')}
+                    </Button>
+                  )}
                 </div>
               </div>
             )}

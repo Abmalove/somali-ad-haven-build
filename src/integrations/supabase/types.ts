@@ -73,6 +73,7 @@ export type Database = {
           id: string
           image_urls: string[] | null
           is_boosted: boolean | null
+          is_hidden: boolean | null
           is_highlighted: boolean | null
           job_title: string | null
           model: string | null
@@ -100,6 +101,7 @@ export type Database = {
           id?: string
           image_urls?: string[] | null
           is_boosted?: boolean | null
+          is_hidden?: boolean | null
           is_highlighted?: boolean | null
           job_title?: string | null
           model?: string | null
@@ -127,6 +129,7 @@ export type Database = {
           id?: string
           image_urls?: string[] | null
           is_boosted?: boolean | null
+          is_hidden?: boolean | null
           is_highlighted?: boolean | null
           job_title?: string | null
           model?: string | null

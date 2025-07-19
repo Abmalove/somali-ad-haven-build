@@ -94,7 +94,7 @@ export const Messages = () => {
         .from('messages')
         .select(`
           *,
-          ads(title, price, currency)
+          ads!messages_ad_id_fkey(title, price, currency)
         `)
         .or(`sender_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
         .order('created_at', { ascending: false });

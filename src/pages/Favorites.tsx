@@ -28,7 +28,7 @@ export const Favorites = () => {
         .from('favorites')
         .select(`
           *,
-          ads (*)
+          ads!favorites_ad_id_fkey (*)
         `)
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
