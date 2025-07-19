@@ -2,18 +2,20 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
-import { UserPlus, User } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { UserPlus, Mail, Lock } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-export default function Register() {
+export const Register = () => {
   const { t } = useLanguage();
   const { signUp } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -26,26 +28,26 @@ export default function Register() {
     
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: t('Khalad!', 'Error!'),
-        description: t('Sirtooyinku ma isku mid aha', 'Passwords do not match'),
+        title: t('Khalad', 'Error'),
+        description: t('Sirta lama aha isku mid', 'Passwords do not match'),
         variant: 'destructive'
       });
       return;
     }
-
+    
     setLoading(true);
     
     try {
       await signUp(formData.email, formData.password);
       toast({
-        title: t('Guul!', 'Success!'),
-        description: t('Akoon si guul leh ayaa loo sameeyay', 'Account created successfully')
+        title: t('Guuleysatay!', 'Success!'),
+        description: t('Akoonka waa la abuuray', 'Account created successfully')
       });
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
       toast({
-        title: t('Khalad!', 'Error!'),
-        description: t('Khalad ayaa dhacay', 'An error occurred'),
+        title: t('Khalad', 'Error'),
+        description: error.message || t('Khalad ayaa dhacay', 'An error occurred'),
         variant: 'destructive'
       });
     } finally {
@@ -53,75 +55,89 @@ export default function Register() {
     }
   };
 
-  const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <LanguageToggle />
       
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center flex items-center justify-center gap-2">
-            <User className="h-6 w-6" />
-            {t('Isciibaani', 'Sign Up')}
+      <Card className="w-full max-w-md shadow-medium">
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center gap-2 text-2xl">
+            <UserPlus className="h-6 w-6" />
+            {t('Abuur Akoon', 'Create Account')}
           </CardTitle>
-          <CardDescription className="text-center">
-            {t('Samee akoon cusub si aad u isticmaasho suuqa', 'Create a new account to use the marketplace')}
-          </CardDescription>
+          <p className="text-muted-foreground">
+            {t('Bilow iibinta iyo iibsashada', 'Start selling and buying')}
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="email">{t('Email', 'Email')}</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                placeholder={t('Gali email-kaaga', 'Enter your email')}
-                required
-              />
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder={t('Gali email-kaaga', 'Enter your email')}
+                  className="pl-10"
+                  required
+                />
+              </div>
             </div>
-            <div className="space-y-2">
+            
+            <div>
               <Label htmlFor="password">{t('Sirta', 'Password')}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleChange('password', e.target.value)}
-                placeholder={t('Gari sirtaada', 'Enter your password')}
-                required
-              />
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder={t('Gali sirta', 'Enter your password')}
+                  className="pl-10"
+                  required
+                />
+              </div>
             </div>
-            <div className="space-y-2">
+            
+            <div>
               <Label htmlFor="confirmPassword">{t('Xaqiiji Sirta', 'Confirm Password')}</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                placeholder={t('Dib u gari sirtaada', 'Confirm your password')}
-                required
-              />
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  placeholder={t('Dib u gali sirta', 'Re-enter your password')}
+                  className="pl-10"
+                  required
+                />
+              </div>
             </div>
+            
             <Button type="submit" className="w-full" disabled={loading}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              {loading ? t('Ka sugga...', 'Loading...') : t('Isciibaani', 'Sign Up')}
+              {loading ? t('Sugaya...', 'Loading...') : t('Abuur Akoon', 'Create Account')}
             </Button>
           </form>
           
-          <div className="mt-4 text-center text-sm">
-            <span className="text-muted-foreground">
-              {t('Akoon ma leedahay?', 'Already have an account?')}
-            </span>{' '}
-            <Link to="/login" className="text-primary hover:underline">
-              {t('Soo gal', 'Login')}
+          <div className="text-center mt-6 space-y-2">
+            <p className="text-sm text-muted-foreground">
+              {t('Ma leedahay akoon?', 'Already have an account?')}
+            </p>
+            <Link to="/login">
+              <Button variant="outline" className="w-full">
+                {t('Soo Gal', 'Login')}
+              </Button>
             </Link>
           </div>
         </CardContent>
       </Card>
     </div>
   );
-}
+};
+
+export default Register;

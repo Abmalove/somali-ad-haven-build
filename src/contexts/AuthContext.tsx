@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { User, Session } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   isLoading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -15,58 +14,63 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
-      }
-    );
-
-    // THEN check for existing session
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+      
+      // Check if user needs shop setup after sign in
+      if (event === 'SIGNED_IN' && session?.user) {
+        setTimeout(async () => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('shop_setup_completed')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+          
+          if (!profile?.shop_setup_completed) {
+            // User needs to set up their shop - this will be handled in the app
+            console.log('User needs shop setup');
+          }
+        }, 0);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
+    const { error } = await supabase.auth.signUp({ 
+      email, 
       password,
       options: {
-        emailRedirectTo: redirectUrl
+        emailRedirectTo: `${window.location.origin}/`
       }
     });
-    
-    return { error };
+    if (error) throw error;
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    return { error };
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, isLoading, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

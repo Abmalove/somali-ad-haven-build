@@ -1,150 +1,375 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { BottomNavigation } from '@/components/BottomNavigation';
-import { User, Settings, LogOut, Edit, Store, Star, Eye, Heart, MessageCircle } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { User, Store, LogOut, Edit, Plus, Eye, Settings, Shield, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-export default function Profile() {
+export const Profile = () => {
   const { t } = useLanguage();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [profile, setProfile] = useState<any>(null);
+  const [userAds, setUserAds] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
 
-  if (!user) {
-    navigate('/login');
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+      fetchUserAds();
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      setProfile(data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const fetchUserAds = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('ads')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUserAds(data || []);
+    } catch (error) {
+      console.error('Error fetching user ads:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      toast({
-        title: t('Ka bax', 'Signed out'),
-        description: t('Si guul leh ayaad uga baxday', 'You have been signed out successfully')
-      });
       navigate('/');
     } catch (error) {
       toast({
-        title: t('Khalad!', 'Error!'),
+        title: t('Khalad', 'Error'),
         description: t('Khalad ayaa dhacay', 'An error occurred'),
         variant: 'destructive'
       });
     }
   };
 
-  const stats = [
-    { label: t('Xayeysiisyo', 'Ads'), value: '12', icon: Store },
-    { label: t('Daawasho', 'Views'), value: '1.2k', icon: Eye },
-    { label: t('Jeclaamo', 'Likes'), value: '89', icon: Heart },
-    { label: t('Farriimo', 'Messages'), value: '23', icon: MessageCircle }
-  ];
+  const handleDeleteAd = async (adId: string) => {
+    try {
+      const { error } = await supabase
+        .from('ads')
+        .delete()
+        .eq('id', adId)
+        .eq('user_id', user?.id); // Ensure user can only delete their own ads
+
+      if (error) throw error;
+
+      // Update the local state to remove the deleted ad
+      setUserAds(prev => prev.filter(ad => ad.id !== adId));
+      
+      toast({
+        title: t('Guuleysatay!', 'Success!'),
+        description: t('Xayeysiiska waa la tirtiray', 'Ad has been deleted successfully')
+      });
+      
+      setDeleteConfirmOpen(false);
+      setSelectedAdId(null);
+    } catch (error) {
+      console.error('Error deleting ad:', error);
+      toast({
+        title: t('Khalad', 'Error'),
+        description: t('Khalad ayaa dhacay markii la tirayey xayeysiiska', 'An error occurred while deleting the ad'),
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const openDeleteConfirm = (adId: string) => {
+    setSelectedAdId(adId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <Badge variant="default" className="bg-green-500">{t('La aqbalay', 'Approved')}</Badge>;
+      case 'pending':
+        return <Badge variant="secondary">{t('Sugitaan', 'Pending')}</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive">{t('La diiday', 'Rejected')}</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  if (!user) {
+    navigate('/login');
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <LanguageToggle />
       
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-8 space-y-6">
         {/* Profile Header */}
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-2xl font-bold">
-                {user.email.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold">{user.email}</h1>
-                <p className="text-muted-foreground">{t('Xubin ka mid ah suuqa', 'Marketplace member')}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="secondary">
-                    <Star className="h-3 w-3 mr-1" />
-                    4.8
-                  </Badge>
-                  <Badge variant="outline">{t('La hubo', 'Verified')}</Badge>
-                </div>
+        <Card className="shadow-medium">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              {t('Profile', 'Profile')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-lg font-semibold">{user.email}</p>
+                {profile?.shop_name && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <Store className="h-4 w-4" />
+                    <span className="text-muted-foreground">{profile.shop_name}</span>
+                  </div>
+                )}
               </div>
               <Button variant="outline" onClick={() => navigate('/edit-profile')}>
                 <Edit className="h-4 w-4 mr-2" />
-                {t('Wax ka bedel', 'Edit')}
+                {t('Wax ka beddel', 'Edit')}
               </Button>
             </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {stats.map((stat, index) => {
-                const Icon = stat.icon;
-                return (
-                  <div key={index} className="text-center p-3 bg-muted/50 rounded-lg">
-                    <Icon className="h-5 w-5 mx-auto mb-2 text-primary" />
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <div className="text-sm text-muted-foreground">{stat.label}</div>
-                  </div>
-                );
-              })}
+            
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="text-center p-3 bg-muted rounded-lg">
+                <p className="text-2xl font-bold">{userAds.length}</p>
+                <p className="text-sm text-muted-foreground">{t('Xayeysiisyo', 'Ads')}</p>
+              </div>
+              <div className="text-center p-3 bg-muted rounded-lg">
+                <p className="text-2xl font-bold">{profile?.subscription_plan || 'free'}</p>
+                <p className="text-sm text-muted-foreground">{t('Plan', 'Plan')}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Menu Items */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{t('Maamulka Akoonka', 'Account Management')}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => navigate('/edit-profile')}
-              >
-                <Edit className="h-4 w-4 mr-3" />
-                {t('Wax ka bedel profile-ka', 'Edit Profile')}
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => navigate('/settings')}
-              >
-                <Settings className="h-4 w-4 mr-3" />
-                {t('Dejinta', 'Settings')}
-              </Button>
-            </CardContent>
-          </Card>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-4">
+          <Button onClick={() => navigate('/post')} className="h-12">
+            <Plus className="h-4 w-4 mr-2" />
+            {t('Xayeysiis Cusub', 'New Ad')}
+          </Button>
+          <Button variant="outline" onClick={() => navigate('/settings')} className="h-12">
+            <Settings className="h-4 w-4 mr-2" />
+            {t('Dejinta', 'Settings')}
+          </Button>
+        </div>
 
-          <Card>
+        {/* Subscription Plans */}
+        {profile?.subscription_plan !== 'admin' && (
+          <Card className="shadow-medium">
             <CardHeader>
-              <CardTitle className="text-lg">{t('Xayeysiisyada', 'My Advertisements')}</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Plus className="h-5 w-5" />
+                {t('Xulashada Plan-ka', 'Choose Your Plan')}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <Store className="h-12 w-12 mx-auto mb-4" />
-                <p>{t('Xayeysiis ma lihid', 'You have no ads yet')}</p>
-                <Button className="mt-4" onClick={() => navigate('/post')}>
-                  {t('Dhig xayeysiis', 'Post an ad')}
-                </Button>
+              <div className="space-y-4">
+                {profile?.subscription_plan === 'free' ? (
+                  <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-yellow-100 dark:bg-yellow-800 rounded-full">
+                          <Plus className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                        </div>
+                        <span className="font-semibold">{t('Pro Plan - $5/bil', 'Pro Plan - $5/month')}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
+                        <span>{t('Xayeysiis aan xadidnayn', 'Unlimited ads')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
+                        <span>{t('Boost & Highlight options', 'Boost & Highlight options')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
+                        <span>{t('Analytics faahfaahsan', 'Detailed analytics')}</span>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full mt-4 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600" 
+                      onClick={() => navigate('/settings')}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      {t('Pro-ga u bedel', 'Upgrade to Pro')}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <Plus className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      <span className="font-semibold text-green-700 dark:text-green-300">
+                        {t('Pro Member', 'Pro Member')}
+                      </span>
+                    </div>
+                    <p className="text-sm text-green-600 dark:text-green-400">
+                      {t('Waad ku mahadsantahay in aad Pro member tahay!', 'Thank you for being a Pro member!')}
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
+        )}
 
-          <Card>
-            <CardContent className="pt-6">
-              <Button
-                variant="outline"
-                className="w-full text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-                onClick={handleSignOut}
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                {t('Ka bax', 'Sign Out')}
+        {/* Admin Panel Access */}
+        {profile?.subscription_plan === 'admin' && (
+          <Button onClick={() => navigate('/admin')} variant="outline" className="w-full">
+            <Shield className="h-4 w-4 mr-2" />
+            {t('Xarunta Maaraynta', 'Admin Panel')}
+          </Button>
+        )}
+
+        {/* Payment Info for Somalia Users */}
+        <Card className="shadow-medium bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+          <CardContent className="pt-4">
+            <div className="text-center text-sm text-blue-700 dark:text-blue-300">
+              <p className="font-medium mb-1">
+                {t('Macluumad Lacag-bixinta', 'Payment Information')}
+              </p>
+              <p className="text-xs">
+                {t('Iibiyayaasha iyo iibsadayaasha Soomaaliya waxa ay lacag M-Pesa ugu diri karaan EVC iyagoo adeegsanaya websiteka Afripesa', 'Sellers/buyers in Somalia can make payment to M-Pesa from EVC through Afripesa website')}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Sign Out */}
+        <Button variant="destructive" onClick={handleSignOut} className="w-full">
+          <LogOut className="h-4 w-4 mr-2" />
+          {t('Ka Bax', 'Sign Out')}
+        </Button>
+
+        {/* User Ads */}
+        <Card className="shadow-medium">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              {t('Xayeysiisyadayda', 'My Ads')} ({userAds.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center space-x-4 animate-pulse">
+                    <div className="w-16 h-16 bg-muted rounded"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-muted rounded w-3/4"></div>
+                      <div className="h-3 bg-muted rounded w-1/2"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : userAds.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">
+                  {t('Wali ma dhigan xayeysiis', "You haven't posted any ads yet")}
+                </p>
+                <Button onClick={() => navigate('/post')} className="mt-4">
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t('Dhig Xayeysiiskaaga ugu horeya', 'Post your first ad')}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {userAds.map((ad) => (
+                  <div key={ad.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                        <span className="text-xl">📦</span>
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{ad.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {ad.currency} {ad.price.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                     <div className="flex items-center gap-2">
+                       {getStatusBadge(ad.status)}
+                       <Button variant="ghost" size="sm" onClick={() => navigate(`/ad/${ad.id}`)}>
+                         <Eye className="h-4 w-4" />
+                       </Button>
+                       <Button 
+                         variant="ghost" 
+                         size="sm" 
+                         onClick={() => openDeleteConfirm(ad.id)}
+                         className="text-destructive hover:text-destructive"
+                       >
+                         <Trash2 className="h-4 w-4" />
+                       </Button>
+                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('Tirtir Xayeysiiska', 'Delete Ad')}</DialogTitle>
+              <DialogDescription>
+                {t('Ma hubtaa inaad tirtiri doonto xayeysiiskan? Falkan lama soo celin karo.', 'Are you sure you want to delete this ad? This action cannot be undone.')}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+                {t('Ka Noqo', 'Cancel')}
               </Button>
-            </CardContent>
-          </Card>
-        </div>
+              <Button 
+                variant="destructive" 
+                onClick={() => selectedAdId && handleDeleteAd(selectedAdId)}
+              >
+                {t('Tirtir', 'Delete')}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <BottomNavigation />
     </div>
   );
-}
+};
+
+export default Profile;
