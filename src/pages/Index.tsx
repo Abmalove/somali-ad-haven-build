@@ -164,9 +164,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen pb-20" style={{background: "linear-gradient(180deg, hsl(210 100% 40%), hsl(0 0% 100%))"}}>
-      <div className="flex justify-between items-center p-4">
+      <div className="flex justify-end items-center p-4">
         <LanguageToggle />
-        <NotificationSystem />
       </div>
       
       {/* Hero Section */}

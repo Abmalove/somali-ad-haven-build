@@ -300,22 +300,6 @@ export const Messages = () => {
                   </div>
                 </CardHeader>
                 
-                {/* Send Message Input (moved to top) */}
-                <div className="p-4 border-b bg-background">
-                  <div className="flex gap-2">
-                    <Input
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder={t('Qor farriimaadkaaga...', 'Type your message...')}
-                      onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                      className="flex-1"
-                    />
-                    <Button onClick={sendMessage} disabled={!newMessage.trim()} className="px-6">
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
                 <CardContent className="flex flex-col h-full p-0">
                   {/* Messages */}
                   <div className="flex-1 overflow-y-auto space-y-3 p-4 max-h-96 bg-muted/20">
@@ -343,6 +327,22 @@ export const Messages = () => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                  
+                  {/* Send Message Input (moved to bottom) */}
+                  <div className="p-4 border-t bg-background">
+                    <div className="flex gap-2">
+                      <Input
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder={t('Qor farriimaadkaaga...', 'Type your message...')}
+                        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                        className="flex-1"
+                      />
+                      <Button onClick={sendMessage} disabled={!newMessage.trim()} className="px-6">
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </>
