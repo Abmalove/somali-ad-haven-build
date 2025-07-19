@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { BottomNavigation } from '@/components/BottomNavigation';
+import { Footer } from '@/components/ui/footer';
 import { HeroSection } from '@/components/HeroSection';
 import { ShopSetup } from '@/components/ShopSetup';
 import { NotificationSystem } from '@/components/NotificationSystem';
@@ -313,6 +314,7 @@ const Index = () => {
       </div>
 
       <BottomNavigation />
+      <Footer />
     </div>
   );
 };

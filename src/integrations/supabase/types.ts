@@ -173,6 +173,13 @@ export type Database = {
             referencedRelation: "ads"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_comments_ad"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
         ]
       }
       favorites: {
@@ -197,6 +204,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "favorites_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_favorites_ad"
             columns: ["ad_id"]
             isOneToOne: false
             referencedRelation: "ads"
@@ -230,6 +244,13 @@ export type Database = {
           sender_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_messages_ad"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "messages_ad_id_fkey"
             columns: ["ad_id"]
@@ -315,7 +336,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_payment_approvals_ad"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -388,6 +417,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_ratings_ad"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ratings_ad_id_fkey"
             columns: ["ad_id"]

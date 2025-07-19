@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Phone, MessageCircle, Star, MapPin, Heart, HeartOff, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { categories } from '@/data/categories';
+import { Footer } from '@/components/ui/footer';
 
 export const AdDetail = () => {
   const { id } = useParams();
@@ -761,6 +762,7 @@ export const AdDetail = () => {
       </div>
 
       <BottomNavigation />
+      <Footer />
     </div>
   );
 };

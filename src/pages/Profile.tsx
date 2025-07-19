@@ -11,6 +11,7 @@ import { BottomNavigation } from '@/components/BottomNavigation';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Store, LogOut, Edit, Plus, Eye, Settings, Shield, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Footer } from '@/components/ui/footer';
 
 export const Profile = () => {
   const { t } = useLanguage();
@@ -368,6 +369,7 @@ export const Profile = () => {
       </div>
 
       <BottomNavigation />
+      <Footer />
     </div>
   );
 };

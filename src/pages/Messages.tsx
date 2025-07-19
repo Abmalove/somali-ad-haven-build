@@ -11,6 +11,7 @@ import { BottomNavigation } from '@/components/BottomNavigation';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, MessageCircle, Search, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Footer } from '@/components/ui/footer';
 
 interface Message {
   id: string;
@@ -149,7 +150,7 @@ export const Messages = () => {
         .from('messages')
         .select(`
           *,
-          ads(title, price, currency)
+          ads!messages_ad_id_fkey(title, price, currency)
         `)
         .eq('ad_id', adId)
         .or(`and(sender_id.eq.${user?.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${user?.id})`)
@@ -354,6 +355,7 @@ export const Messages = () => {
       </div>
 
       <BottomNavigation />
+      <Footer />
     </div>
   );
 };
