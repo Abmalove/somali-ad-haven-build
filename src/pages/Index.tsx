@@ -248,7 +248,7 @@ const Index = () => {
                 </p>
               </div>
               <a 
-                href="https://drive.google.com/uc?export=download&id=1LOgCQaH-73XQfoxX6Yx1PbDpx0TmjvIx"
+                href=https://drive.google.com/file/d/1LOgCQaH-73XQfoxX6Yx1PbDpx0TmjvIx/view?usp=sharing
                 target="_blank"
                 rel="noopener noreferrer"
               >
