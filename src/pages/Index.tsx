@@ -11,7 +11,7 @@ import { BottomNavigation } from '@/components/BottomNavigation';
 import { Footer } from '@/components/ui/footer';
 import { HeroSection } from '@/components/HeroSection';
 import { ShopSetup } from '@/components/ShopSetup';
-import { NotificationSystem } from '@/components/NotificationSystem';
+
 import { categories } from '@/data/categories';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Plus, TrendingUp, MapPin, Phone, Star, Eye, Download } from 'lucide-react';
