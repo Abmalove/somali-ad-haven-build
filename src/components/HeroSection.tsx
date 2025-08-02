@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, TrendingUp } from 'lucide-react';
+import { Plus, Search, TrendingUp, Download } from 'lucide-react';
 import heroImage from '@/assets/hero-marketplace.jpg';
 
 export const HeroSection = () => {
@@ -49,6 +49,30 @@ export const HeroSection = () => {
               <Search className="h-5 w-5 mr-2" />
               {t('Raadi', 'Browse Ads')}
             </Button>
+          </div>
+          
+          {/* Android App Download */}
+          <div className="mt-6 p-4 bg-white/10 rounded-lg border border-white/20">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">📱</span>
+              <h3 className="text-lg font-semibold">
+                {t('Soo dejiso Appkeenna Android', 'Download Our Android App')}
+              </h3>
+            </div>
+            <a 
+              href="https://drive.google.com/uc?export=download&id=1LOgCQaH-73XQfoxX6Yx1PbDpx0TmjvIx"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button 
+                size="lg" 
+                variant="secondary"
+                className="w-full sm:w-auto text-lg px-8 py-3"
+              >
+                <Download className="h-5 w-5 mr-2" />
+                {t('Soo Dejiso APK', 'Download APK')}
+              </Button>
+            </a>
           </div>
           
           {/* Stats */}
