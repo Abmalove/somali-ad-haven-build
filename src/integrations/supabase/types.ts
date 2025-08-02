@@ -94,6 +94,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          view_count: number | null
           year: string | null
         }
         Insert: {
@@ -122,6 +123,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          view_count?: number | null
           year?: string | null
         }
         Update: {
@@ -150,6 +152,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          view_count?: number | null
           year?: string | null
         }
         Relationships: []
@@ -226,6 +229,140 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "ads"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_moves: {
+        Row: {
+          dice_value: number | null
+          game_id: string
+          id: string
+          move_data: Json | null
+          move_type: string
+          player_id: string
+          timestamp: string
+          token_position: Json | null
+        }
+        Insert: {
+          dice_value?: number | null
+          game_id: string
+          id?: string
+          move_data?: Json | null
+          move_type: string
+          player_id: string
+          timestamp?: string
+          token_position?: Json | null
+        }
+        Update: {
+          dice_value?: number | null
+          game_id?: string
+          id?: string
+          move_data?: Json | null
+          move_type?: string
+          player_id?: string
+          timestamp?: string
+          token_position?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_moves_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_moves_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      games: {
+        Row: {
+          created_at: string
+          current_turn_player: string | null
+          expires_at: string | null
+          game_state: Json | null
+          game_type: string
+          id: string
+          missed_turns_count: number
+          player1_id: string
+          player2_id: string | null
+          room_code: string | null
+          stake_amount: number
+          status: string
+          total_pot: number
+          turn_deadline: string | null
+          updated_at: string
+          winner_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_turn_player?: string | null
+          expires_at?: string | null
+          game_state?: Json | null
+          game_type: string
+          id?: string
+          missed_turns_count?: number
+          player1_id: string
+          player2_id?: string | null
+          room_code?: string | null
+          stake_amount: number
+          status?: string
+          total_pot: number
+          turn_deadline?: string | null
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_turn_player?: string | null
+          expires_at?: string | null
+          game_state?: Json | null
+          game_type?: string
+          id?: string
+          missed_turns_count?: number
+          player1_id?: string
+          player2_id?: string | null
+          room_code?: string | null
+          stake_amount?: number
+          status?: string
+          total_pot?: number
+          turn_deadline?: string | null
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "games_current_turn_player_fkey"
+            columns: ["current_turn_player"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "games_player1_id_fkey"
+            columns: ["player1_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "games_player2_id_fkey"
+            columns: ["player2_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "games_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -454,6 +591,108 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          bank_details: string | null
+          created_at: string
+          game_id: string | null
+          id: string
+          payment_phone: string | null
+          status: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          bank_details?: string | null
+          created_at?: string
+          game_id?: string | null
+          id?: string
+          payment_phone?: string | null
+          status?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          bank_details?: string | null
+          created_at?: string
+          game_id?: string | null
+          id?: string
+          payment_phone?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      user_profiles: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          is_admin: boolean
+          is_banned: boolean
+          matches_lost: number
+          matches_won: number
+          phone: string | null
+          total_winnings: number
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          is_admin?: boolean
+          is_banned?: boolean
+          matches_lost?: number
+          matches_won?: number
+          phone?: string | null
+          total_winnings?: number
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          is_admin?: boolean
+          is_banned?: boolean
+          matches_lost?: number
+          matches_won?: number
+          phone?: string | null
+          total_winnings?: number
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -465,6 +704,10 @@ export type Database = {
       }
       check_trial_expiry: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      increment_ad_view_count: {
+        Args: { ad_id: string }
         Returns: undefined
       }
       is_admin: {

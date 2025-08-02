@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import { AdDetail } from "./pages/AdDetail";
 import { Messages } from "./pages/Messages";
 import { EditAd } from "./pages/EditAd";
+import MyShop from "./pages/MyShop";
 
 const queryClient = new QueryClient();
 
@@ -37,7 +38,8 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/post" element={<PostAd />} />
-              <Route path="/profile" element={<Profile />} />
+               <Route path="/profile" element={<Profile />} />
+               <Route path="/my-shop" element={<MyShop />} />
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/settings" element={<SettingsPage />} />
