@@ -10,7 +10,6 @@ export const LanguageToggle = () => {
 
   return (
     <div className="fixed top-4 right-4 z-50 flex gap-2">
-      <NotificationSystem />
       <Button
         variant="outline"
         size="sm"
@@ -27,6 +26,7 @@ export const LanguageToggle = () => {
       >
         {language === 'so' ? 'EN' : 'SO'}
       </Button>
+      <NotificationSystem />
     </div>
   );
 };
