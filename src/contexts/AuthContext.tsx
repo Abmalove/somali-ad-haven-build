@@ -66,7 +66,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    // Ignore "session not found" errors as the user is already signed out
+    if (error && error.message !== 'Session not found') {
+      throw error;
+    }
   };
 
   return (
