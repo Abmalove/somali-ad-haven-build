@@ -65,10 +65,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    // Ignore "session not found" errors as the user is already signed out
-    if (error && error.message !== 'Session not found') {
-      throw error;
+    try {
+      // Check if there's an active session before attempting to sign out
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // No active session, just clear local state
+        setUser(null);
+        return;
+      }
+      
+      const { error } = await supabase.auth.signOut();
+      if (error && !error.message.includes('Session not found')) {
+        throw error;
+      }
+    } catch (error: any) {
+      // If there's any error, still clear the local state
+      console.warn('Sign out error (clearing local state):', error.message);
+      setUser(null);
     }
   };
 
