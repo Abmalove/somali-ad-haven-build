@@ -23,6 +23,7 @@ export const AdminPanel = () => {
   
   const [loading, setLoading] = useState(false);
   const [pendingAds, setPendingAds] = useState<any[]>([]);
+  const [allAds, setAllAds] = useState<any[]>([]);
   const [approvalRequests, setApprovalRequests] = useState<any[]>([]);
   const [paymentApprovals, setPaymentApprovals] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -44,6 +45,7 @@ export const AdminPanel = () => {
   useEffect(() => {
     if (isAdmin) {
       fetchPendingAds();
+      fetchAllAds();
       fetchApprovalRequests();
       fetchPaymentApprovals();
       fetchAllUsers();
@@ -90,6 +92,20 @@ export const AdminPanel = () => {
       setPendingAds(data || []);
     } catch (error) {
       console.error('Error fetching pending ads:', error);
+    }
+  };
+
+  const fetchAllAds = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('ads')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAllAds(data || []);
+    } catch (error) {
+      console.error('Error fetching all ads:', error);
     }
   };
 
@@ -229,6 +245,7 @@ export const AdminPanel = () => {
       // Refresh all data
       await Promise.all([
         fetchPendingAds(),
+        fetchAllAds(),
         fetchAllUsers()
       ]);
     } catch (error) {
@@ -325,6 +342,7 @@ export const AdminPanel = () => {
       // Refresh all data
       await Promise.all([
         fetchPendingAds(),
+        fetchAllAds(),
         fetchAllUsers()
       ]);
     } catch (error) {
@@ -416,7 +434,11 @@ export const AdminPanel = () => {
           <TabsList className="grid grid-cols-5 w-full">
             <TabsTrigger value="ads" className="flex items-center gap-2">
               <Eye className="h-4 w-4" />
-              {t('Xayeysiisyo', 'Ads')}
+              {t('Xayeysiisyo', 'Pending Ads')}
+            </TabsTrigger>
+            <TabsTrigger value="all-ads" className="flex items-center gap-2">
+              <Trash2 className="h-4 w-4" />
+              {t('Tirtiris Xayeysiisyo', 'Delete Ads')}
             </TabsTrigger>
             <TabsTrigger value="payments" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -429,10 +451,6 @@ export const AdminPanel = () => {
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               {t('Isticmaalayaasha', 'Users')}
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              {t('Farriimaad', 'Messages')}
             </TabsTrigger>
           </TabsList>
 
@@ -983,21 +1001,77 @@ export const AdminPanel = () => {
             </Card>
           </TabsContent>
 
-          {/* Messages Tab */}
-          <TabsContent value="messages">
+          {/* All Ads Tab for Deletion */}
+          <TabsContent value="all-ads">
             <Card>
               <CardHeader>
-                <CardTitle>{t('Farriimaadaha', 'Messages')}</CardTitle>
+                <CardTitle>{t('Dhammaan Xayeysiisyada - Tirtiris', 'All Ads - Delete')} ({allAds.length})</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center text-muted-foreground py-8">
-                  {t('Farriimaadaha waxaa laga maareeyaa bogga khaaska ah', 'Messages are managed from the dedicated messages page')}
-                  <div className="mt-4">
-                    <Button onClick={() => navigate('/messages')}>
-                      {t('Aad u farriimaadaha', 'Go to Messages')}
-                    </Button>
-                  </div>
-                </div>
+                {allAds.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    {t('Ma jiraan xayeysiisyo', 'No ads found')}
+                  </p>
+                ) : (
+                  <ScrollArea className="h-[600px]">
+                    <div className="space-y-4 pr-4">
+                      {allAds.map((ad) => (
+                        <Card key={ad.id} className="border-l-4 border-l-blue-500">
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-start mb-4">
+                              <div className="flex-1">
+                                <h3 className="text-lg font-semibold mb-2">{ad.title}</h3>
+                                <div className="grid grid-cols-2 gap-4 mb-3">
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Store className="h-4 w-4" />
+                                    {ad.shop_name}
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <MapPin className="h-4 w-4" />
+                                    {ad.region}
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Calendar className="h-4 w-4" />
+                                    {new Date(ad.created_at).toLocaleDateString()}
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Eye className="h-4 w-4" />
+                                    {t('Daawasho', 'Views')}: {ad.view_count || 0}
+                                  </div>
+                                </div>
+                                <p className="text-xl font-bold text-primary mb-2">
+                                  {ad.currency} {ad.price.toLocaleString()}
+                                </p>
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                <Badge variant={ad.status === 'approved' ? 'default' : ad.status === 'pending' ? 'secondary' : 'destructive'}>
+                                  {ad.status}
+                                </Badge>
+                                <Badge variant="outline">{ad.category}</Badge>
+                              </div>
+                            </div>
+                            
+                            <div className="mb-4">
+                              <p className="text-sm leading-relaxed line-clamp-2">{ad.description}</p>
+                            </div>
+
+                            <div className="flex justify-end">
+                              <Button 
+                                size="sm" 
+                                variant="destructive"
+                                onClick={() => handleDeleteAd(ad.id)}
+                                disabled={loading}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                {t('Tirtir', 'Delete Forever')}
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

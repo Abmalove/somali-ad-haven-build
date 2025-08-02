@@ -13,7 +13,6 @@ export const BottomNavigation = () => {
     { icon: Search, label: t('Raadi', 'Search'), path: '/search' },
     { icon: Plus, label: t('Dhig', 'Post'), path: '/post' },
     { icon: MessageCircle, label: t('Farriimaad', 'Messages'), path: '/messages' },
-    { icon: Heart, label: t('Jecel', 'Favorites'), path: '/favorites' },
     { icon: User, label: t('Profile', 'Profile'), path: '/profile' },
   ];
 

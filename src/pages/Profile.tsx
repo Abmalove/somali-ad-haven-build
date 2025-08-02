@@ -181,9 +181,9 @@ export const Profile = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4">
-          <Button onClick={() => navigate('/post')} className="h-12">
-            <Plus className="h-4 w-4 mr-2" />
-            {t('Xayeysiis Cusub', 'New Ad')}
+          <Button onClick={() => navigate('/my-shop')} className="h-12">
+            <Store className="h-4 w-4 mr-2" />
+            {t('Dukaankayga', 'My Shop')}
           </Button>
           <Button variant="outline" onClick={() => navigate('/settings')} className="h-12">
             <Settings className="h-4 w-4 mr-2" />

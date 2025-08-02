@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { BottomNavigation } from '@/components/BottomNavigation';
-import { ArrowLeft, SettingsIcon, Moon, Sun, Bell, Shield, LogOut } from 'lucide-react';
+import { ArrowLeft, SettingsIcon, Moon, Sun, Bell, Shield, LogOut, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const SettingsPage = () => {
@@ -118,6 +118,15 @@ export const SettingsPage = () => {
               >
                 <SettingsIcon className="h-4 w-4 mr-2" />
                 {t('Wax Ka Beddel Xogta', 'Edit Profile')}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => navigate('/favorites')}
+              >
+                <Heart className="h-4 w-4 mr-2" />
+                {t('Jecel', 'Favorites')}
               </Button>
               
               <Button 
