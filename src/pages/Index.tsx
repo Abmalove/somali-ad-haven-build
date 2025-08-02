@@ -185,7 +185,7 @@ const Index = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={t('Raadi alaab, baabuur, shaqo...', 'Search for items, cars, jobs...')}
-              className="pl-10 bg-white text-foreground placeholder:text-muted-foreground"
+              className="pl-10 bg-white text-black placeholder:text-gray-500"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   // Search functionality is already handled by filteredAds
