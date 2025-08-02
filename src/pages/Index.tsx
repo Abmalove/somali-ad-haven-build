@@ -14,7 +14,7 @@ import { ShopSetup } from '@/components/ShopSetup';
 import { NotificationSystem } from '@/components/NotificationSystem';
 import { categories } from '@/data/categories';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Plus, TrendingUp, MapPin, Phone, Star, Eye } from 'lucide-react';
+import { Search, Plus, TrendingUp, MapPin, Phone, Star, Eye, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Ad {
@@ -231,6 +231,39 @@ const Index = () => {
             ))}
           </div>
         </div>
+
+        {/* Android App Download Section */}
+        <Card className="bg-gradient-primary text-primary-foreground border-0">
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
+                  <span className="text-3xl">📱</span>
+                  <h3 className="text-xl font-bold">
+                    {t('Soo dejiso Appkeenna Android', 'Download Our Android App')}
+                  </h3>
+                </div>
+                <p className="text-primary-foreground/90">
+                  {t('Hel khadad degdeg ah oo aad ku raadiso xayeysiisyada', 'Get faster access to browse ads')}
+                </p>
+              </div>
+              <a 
+                href="https://drive.google.com/uc?export=download&id=1LOgCQaH-73XQfoxX6Yx1PbDpx0TmjvIx"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button 
+                  size="lg" 
+                  variant="secondary"
+                  className="text-lg px-6 py-3 min-w-[200px]"
+                >
+                  <Download className="h-5 w-5 mr-2" />
+                  {t('Soo Dejiso APK', 'Download APK')}
+                </Button>
+              </a>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Quick Post Button */}
         <Button 
