@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { supabase } from '@/integrations/supabase/client';
-import { User, Store, LogOut, Edit, Plus, Eye, Settings, Shield, Trash2 } from 'lucide-react';
+import { User, Store, LogOut, Edit, Plus, Eye, Settings, Shield, Trash2, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Footer } from '@/components/ui/footer';
 
@@ -273,6 +273,12 @@ export const Profile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Favorites */}
+        <Button variant="outline" onClick={() => navigate('/favorites')} className="w-full">
+          <Heart className="h-4 w-4 mr-2" />
+          {t('Kuwa jecelahay', 'Favorites')}
+        </Button>
 
         {/* Sign Out */}
         <Button variant="destructive" onClick={handleSignOut} className="w-full">

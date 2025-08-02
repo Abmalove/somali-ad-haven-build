@@ -321,12 +321,21 @@ export const AdminPanel = () => {
   };
 
   const handleDeleteAd = async (adId: string) => {
-    if (!confirm(t('Ma hubtaa inaad tirtirto xayeysiiskan?', 'Are you sure you want to delete this ad?'))) {
+    if (!confirm(t('Ma hubtaa inaad tirtirto xayeysiiskan? Xayeysiiska waa la tirtiri doonaa iskuna ma soo noqon doono.', 'Are you sure you want to delete this ad? The ad will be permanently removed from the platform.'))) {
       return;
     }
     
     setLoading(true);
     try {
+      // First delete related records (favorites, comments, ratings, messages)
+      await Promise.all([
+        supabase.from('favorites').delete().eq('ad_id', adId),
+        supabase.from('comments').delete().eq('ad_id', adId),
+        supabase.from('ratings').delete().eq('ad_id', adId),
+        supabase.from('messages').delete().eq('ad_id', adId)
+      ]);
+
+      // Then delete the ad itself
       const { error } = await supabase
         .from('ads')
         .delete()
@@ -336,7 +345,7 @@ export const AdminPanel = () => {
 
       toast({
         title: t('Guuleysatay!', 'Success!'),
-        description: t('Xayeysiiska waa la tirtiray', 'Ad has been deleted')
+        description: t('Xayeysiiska si buuxda ayaa loo tirtiray websiteka', 'Ad has been permanently removed from the platform')
       });
 
       // Refresh all data
