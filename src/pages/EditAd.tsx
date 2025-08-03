@@ -13,6 +13,7 @@ import { BottomNavigation } from '@/components/BottomNavigation';
 import { ImageUpload } from '@/components/ImageUpload';
 import { CVUpload } from '@/components/CVUpload';
 import { categories, regions } from '@/data/categories';
+import { currencies } from '@/data/currencies';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -247,9 +248,11 @@ export const EditAd = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="USD">USD ($)</SelectItem>
-                      <SelectItem value="EUR">EUR (€)</SelectItem>
-                      <SelectItem value="SOS">SOS (So.Sh)</SelectItem>
+                      {currencies.map((currency) => (
+                        <SelectItem key={currency.code} value={currency.code}>
+                          {currency.code} ({currency.symbol})
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
